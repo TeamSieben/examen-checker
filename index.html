@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M2 Frühjahr 2025 - Examensprüfung</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        // Lucide Icons als SVG
+        const Check = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        );
+
+        const X = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        );
+
+        const Award = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+        );
+
+        const AlertCircle = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        );
+
+        const ExamChecker = () => {
+            const [selectedVersion, setSelectedVersion] = useState('A');
+            const [selectedDay, setSelectedDay] = useState(1);
+            const [answers, setAnswers] = useState({});
+            
+            // Lösungsdaten
+            const solutions = {
+                A: {
+                    1: {1:'A',2:'E',3:'A',4:'B',5:'C',6:'C',7:'D',8:'D',9:'E',10:'B',11:'C',12:'B',13:'E',14:'A',15:'C',16:'B',17:'E',18:'B',19:'C',20:'E',21:'D',22:'A',23:'C',24:'E',25:'A',26:'D',27:'B',28:'B',29:'A',30:'D',31:'A',32:'E',33:'D',34:'B',35:'E',36:'E',37:'C',38:'D',39:'D',40:'A',41:'C',42:'B',43:'B',44:'D',45:'D',46:'A',47:'A',48:'E',49:'E',50:'D',51:'A',52:'E',53:'C',54:'A',55:'A',56:'B',57:'C',58:'B',59:'C',60:'A',61:'E',62:'D',63:'B',64:'E',65:'C',66:'A',67:'A',68:'B',69:'C',70:'C',71:'D',72:'E',73:'D',74:'C',75:'A',76:'B',77:'B',78:'E',79:'C',80:'E',81:'E',82:'D',83:'C',84:'D',85:'D',86:'B',87:'E',88:'C',89:'D',90:'D',91:'D',92:'C',93:'C',94:'A',95:'D',96:'C',97:'C',98:'D',99:'B',100:'C',101:'A',102:'A',103:'B',104:'X',105:'B',106:'D',107:'A'},
+                    2: {1:'E',2:'C',3:'C',4:'B',5:'D',6:'B',7:'E',8:'E',9:'A',10:'B',11:'C',12:'B',13:'D',14:'E',15:'A',16:'B',17:'D',18:'A',19:'A',20:'A',21:'D',22:'B',23:'D',24:'B',25:'A',26:'A',27:'X',28:'B',29:'D',30:'C',31:'D',32:'D',33:'E',34:'A',35:'E',36:'C',37:'B',38:'C',39:'C',40:'E',41:'C',42:'A',43:'A',44:'D',45:'E',46:'A',47:'E',48:'A',49:'C',50:'B',51:'B',52:'D',53:'D',54:'E',55:'A',56:'E',57:'B',58:'E',59:'C',60:'C',61:'E',62:'A',63:'A',64:'B',65:'D',66:'B',67:'C',68:'A',69:'B',70:'B',71:'D',72:'C',73:'B',74:'E',75:'D',76:'E',77:'B',78:'D',79:'D',80:'B',81:'C',82:'A',83:'C',84:'B',85:'B',86:'D',87:'B',88:'C',89:'C',90:'E',91:'D',92:'A',93:'C',94:'B',95:'A',96:'D',97:'C',98:'B',99:'E',100:'A',101:'B',102:'B',103:'C',104:'D',105:'E',106:'A',107:'D'},
+                    3: {1:'B',2:'A',3:'C',4:'B',5:'E',6:'B',7:'A',8:'C',9:'E',10:'A',11:'C',12:'C',13:'A',14:'E',15:'A',16:'A',17:'C',18:'E',19:'B',20:'B',21:'D',22:'B',23:'A',24:'C',25:'C',26:'B',27:'A',28:'E',29:'C',30:'C',31:'E',32:'C',33:'X',34:'D',35:'B',36:'A',37:'B',38:'D',39:'A',40:'B',41:'C',42:'D',43:'C',44:'C',45:'D',46:'D',47:'C',48:'D',49:'D',50:'C',51:'A',52:'B',53:'B',54:'C',55:'B',56:'A',57:'C',58:'C',59:'D',60:'C',61:'B',62:'C',63:'B',64:'C',65:'A',66:'D',67:'E',68:'B',69:'B',70:'B',71:'A',72:'B',73:'E',74:'E',75:'E',76:'D',77:'B',78:'B',79:'B',80:'A',81:'C',82:'A',83:'B',84:'D',85:'C',86:'C',87:'D',88:'B',89:'A',90:'C',91:'C',92:'A',93:'A',94:'E',95:'D',96:'A',97:'B',98:'D',99:'B',100:'C',101:'C',102:'A',103:'D',104:'C',105:'A',106:'B'}
+                },
+                B: {
+                    1: {1:'D',2:'A',3:'E',4:'D',5:'B',6:'E',7:'E',8:'C',9:'D',10:'D',11:'A',12:'C',13:'B',14:'B',15:'D',16:'D',17:'A',18:'A',19:'E',20:'E',21:'D',22:'A',23:'E',24:'C',25:'A',26:'A',27:'B',28:'C',29:'B',30:'C',31:'A',32:'E',33:'D',34:'B',35:'E',36:'C',37:'A',38:'A',39:'B',40:'C',41:'C',42:'D',43:'A',44:'E',45:'A',46:'B',47:'C',48:'C',49:'D',50:'D',51:'E',52:'B',53:'C',54:'B',55:'E',56:'A',57:'C',58:'B',59:'E',60:'B',61:'C',62:'E',63:'D',64:'A',65:'C',66:'E',67:'A',68:'D',69:'B',70:'B',71:'A',72:'D',73:'C',74:'C',75:'A',76:'D',77:'C',78:'C',79:'D',80:'B',81:'C',82:'A',83:'A',84:'B',85:'X',86:'B',87:'D',88:'A',89:'E',90:'D',91:'C',92:'A',93:'B',94:'B',95:'E',96:'C',97:'E',98:'E',99:'D',100:'C',101:'D',102:'D',103:'B',104:'E',105:'C',106:'D',107:'D'},
+                    2: {1:'E',2:'A',3:'E',4:'C',5:'B',6:'C',7:'C',8:'E',9:'C',10:'A',11:'A',12:'D',13:'E',14:'A',15:'E',16:'A',17:'C',18:'B',19:'B',20:'D',21:'D',22:'E',23:'A',24:'E',25:'B',26:'E',27:'C',28:'C',29:'E',30:'A',31:'A',32:'B',33:'D',34:'E',35:'C',36:'C',37:'B',38:'D',39:'B',40:'E',41:'E',42:'A',43:'B',44:'C',45:'B',46:'D',47:'E',48:'A',49:'B',50:'D',51:'A',52:'A',53:'A',54:'D',55:'B',56:'D',57:'B',58:'A',59:'A',60:'X',61:'B',62:'D',63:'C',64:'D',65:'D',66:'B',67:'D',68:'B',69:'C',70:'C',71:'E',72:'D',73:'A',74:'C',75:'B',76:'A',77:'D',78:'C',79:'B',80:'E',81:'A',82:'B',83:'B',84:'C',85:'D',86:'E',87:'A',88:'D',89:'B',90:'C',91:'A',92:'B',93:'B',94:'D',95:'C',96:'B',97:'E',98:'D',99:'E',100:'B',101:'D',102:'D',103:'B',104:'C',105:'A',106:'C',107:'B'},
+                    3: {1:'C',2:'C',3:'E',4:'C',5:'X',6:'D',7:'B',8:'A',9:'B',10:'D',11:'A',12:'B',13:'C',14:'D',15:'C',16:'C',17:'D',18:'D',19:'C',20:'D',21:'D',22:'C',23:'A',24:'B',25:'B',26:'C',27:'B',28:'A',29:'C',30:'C',31:'D',32:'C',33:'B',34:'C',35:'B',36:'C',37:'A',38:'D',39:'E',40:'B',41:'A',42:'C',43:'B',44:'E',45:'B',46:'A',47:'C',48:'E',49:'A',50:'C',51:'C',52:'A',53:'E',54:'A',55:'A',56:'C',57:'E',58:'B',59:'B',60:'D',61:'B',62:'A',63:'C',64:'C',65:'B',66:'A',67:'E',68:'C',69:'C',70:'A',71:'A',72:'E',73:'D',74:'A',75:'B',76:'D',77:'B',78:'C',79:'C',80:'A',81:'D',82:'C',83:'A',84:'B',85:'B',86:'B',87:'B',88:'A',89:'B',90:'E',91:'E',92:'E',93:'D',94:'B',95:'B',96:'B',97:'A',98:'C',99:'A',100:'B',101:'D',102:'C',103:'C',104:'D',105:'B',106:'A'}
+                }
+            };
+
+            const currentSolutions = solutions[selectedVersion][selectedDay];
+            const totalQuestions = Object.keys(currentSolutions).length;
+            
+            const handleAnswerChange = (questionNum, value) => {
+                const key = `${selectedVersion}-${selectedDay}-${questionNum}`;
+                setAnswers(prev => ({
+                    ...prev,
+                    [key]: value.toUpperCase()
+                }));
+            };
+
+            const stats = useMemo(() => {
+                let correct = 0;
+                let wrong = 0;
+                let unanswered = 0;
+                
+                Object.entries(currentSolutions).forEach(([qNum, solution]) => {
+                    if (solution === 'X') return;
+                    
+                    const key = `${selectedVersion}-${selectedDay}-${qNum}`;
+                    const userAnswer = answers[key];
+                    
+                    if (!userAnswer) {
+                        unanswered++;
+                    } else if (userAnswer === solution) {
+                        correct++;
+                    } else {
+                        wrong++;
+                    }
+                });
+                
+                const validQuestions = totalQuestions - Object.values(currentSolutions).filter(v => v === 'X').length;
+                const percentage = validQuestions > 0 ? ((correct / validQuestions) * 100).toFixed(1) : 0;
+                
+                return { correct, wrong, unanswered, validQuestions, percentage };
+            }, [answers, selectedVersion, selectedDay, currentSolutions, totalQuestions]);
+
+            const getQuestionStatus = (qNum) => {
+                const solution = currentSolutions[qNum];
+                if (solution === 'X') return 'excluded';
+                
+                const key = `${selectedVersion}-${selectedDay}-${qNum}`;
+                const userAnswer = answers[key];
+                
+                if (!userAnswer) return 'unanswered';
+                return userAnswer === solution ? 'correct' : 'wrong';
+            };
+
+            const resetAnswers = () => {
+                const confirmReset = window.confirm('Möchtest du wirklich alle Antworten für diesen Tag zurücksetzen?');
+                if (confirmReset) {
+                    const newAnswers = { ...answers };
+                    Object.keys(newAnswers).forEach(key => {
+                        if (key.startsWith(`${selectedVersion}-${selectedDay}-`)) {
+                            delete newAnswers[key];
+                        }
+                    });
+                    setAnswers(newAnswers);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+                    <div className="max-w-6xl mx-auto">
+                        {/* Header */}
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <div className="flex items-center gap-3 mb-4">
+                                <Award size={32} className="text-indigo-600" />
+                                <h1 className="text-3xl font-bold text-gray-800">M2 Frühjahr 2025 - Examensprüfung</h1>
+                            </div>
+                            
+                            {/* Auswahl */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Auflage</label>
+                                    <select 
+                                        value={selectedVersion}
+                                        onChange={(e) => setSelectedVersion(e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    >
+                                        <option value="A">Auflage A</option>
+                                        <option value="B">Auflage B</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Prüfungstag</label>
+                                    <select 
+                                        value={selectedDay}
+                                        onChange={(e) => setSelectedDay(Number(e.target.value))}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                    >
+                                        <option value={1}>1. Tag</option>
+                                        <option value={2}>2. Tag</option>
+                                        <option value={3}>3. Tag</option>
+                                    </select>
+                                </div>
+                                
+                                <div className="flex items-end">
+                                    <button
+                                        onClick={resetAnswers}
+                                        className="w-full p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                    >
+                                        Antworten zurücksetzen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Statistik */}
+                        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                            <h2 className="text-xl font-bold text-gray-800 mb-4">Auswertung</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                <div className="bg-green-50 p-4 rounded-lg">
+                                    <div className="text-2xl font-bold text-green-600">{stats.correct}</div>
+                                    <div className="text-sm text-gray-600">Richtig</div>
+                                </div>
+                                <div className="bg-red-50 p-4 rounded-lg">
+                                    <div className="text-2xl font-bold text-red-600">{stats.wrong}</div>
+                                    <div className="text-sm text-gray-600">Falsch</div>
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <div className="text-2xl font-bold text-gray-600">{stats.unanswered}</div>
+                                    <div className="text-sm text-gray-600">Offen</div>
+                                </div>
+                                <div className="bg-blue-50 p-4 rounded-lg">
+                                    <div className="text-2xl font-bold text-blue-600">{stats.validQuestions}</div>
+                                    <div className="text-sm text-gray-600">Gesamt</div>
+                                </div>
+                                <div className="bg-indigo-50 p-4 rounded-lg">
+                                    <div className="text-2xl font-bold text-indigo-600">{stats.percentage}%</div>
+                                    <div className="text-sm text-gray-600">Erfolgsquote</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Fragen */}
+                        <div className="bg-white rounded-lg shadow-lg p-6">
+                            <h2 className="text-xl font-bold text-gray-800 mb-4">Fragen</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                                {Object.keys(currentSolutions).map(qNum => {
+                                    const status = getQuestionStatus(qNum);
+                                    const key = `${selectedVersion}-${selectedDay}-${qNum}`;
+                                    const solution = currentSolutions[qNum];
+                                    
+                                    if (solution === 'X') {
+                                        return (
+                                            <div key={qNum} className="flex items-center gap-2 p-3 bg-gray-100 rounded-lg opacity-50">
+                                                <span className="font-medium text-gray-500 w-8">{qNum}.</span>
+                                                <AlertCircle size={16} className="text-gray-400" />
+                                                <span className="text-sm text-gray-500">Nicht gewertet</span>
+                                            </div>
+                                        );
+                                    }
+                                    
+                                    return (
+                                        <div key={qNum} className="flex items-center gap-2">
+                                            <label className="font-medium text-gray-700 w-8">{qNum}.</label>
+                                            <input
+                                                type="text"
+                                                maxLength="1"
+                                                value={answers[key] || ''}
+                                                onChange={(e) => handleAnswerChange(qNum, e.target.value)}
+                                                className={`w-12 h-10 text-center text-lg font-bold border-2 rounded-lg focus:outline-none focus:ring-2 ${
+                                                    status === 'correct' ? 'border-green-500 bg-green-50 text-green-700' :
+                                                    status === 'wrong' ? 'border-red-500 bg-red-50 text-red-700' :
+                                                    'border-gray-300 focus:border-indigo-500'
+                                                }`}
+                                            />
+                                            {status === 'correct' && <Check size={20} className="text-green-600" />}
+                                            {status === 'wrong' && (
+                                                <div className="flex items-center gap-1">
+                                                    <X size={20} className="text-red-600" />
+                                                    <span className="text-sm font-medium text-red-600">→{solution}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Legende */}
+                        <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
+                            <h3 className="text-lg font-bold text-gray-800 mb-3">Legende</h3>
+                            <div className="flex flex-wrap gap-4 text-sm">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 bg-green-50 border-2 border-green-500 rounded"></div>
+                                    <span>Richtig</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 bg-red-50 border-2 border-red-500 rounded"></div>
+                                    <span>Falsch (korrekte Lösung wird angezeigt)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 bg-white border-2 border-gray-300 rounded"></div>
+                                    <span>Nicht beantwortet</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-4 h-4 bg-gray-100 rounded"></div>
+                                    <span>Nicht gewertet</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ExamChecker />, document.getElementById('root'));
+    </script>
+</body>
+</html>
